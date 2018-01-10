@@ -6,16 +6,29 @@ from models import IssuePage
 
 
 class TestCreateIssueInPublicProject(Base):
-    def test_create_issue(self):
-        pass
+    def test_create_issue(self, browser, baseurl):
+        page_object = Page(browser, baseurl)
+        page_object.go_to_url()
+        page_object.open_new_task_anonymously()
+
+        issue_page_object = IssuePage(browser, baseurl)
+        issue_page_object.create_anon_issue("Test anon issue", "Testing anonymous issue submission", "anonymous@anon.ym")
+
+        popup = browser.find_element_by_class_name("success")
+        assert popup.text == "Your new task has been added."
 
 
 class TestCreateIssueInPrivateProject(Base):
     def test_login(self, browser, baseurl):
         self.login(browser, baseurl, "admin", "admin123")
 
-    # def test_create_issue(self):
-    #     pass
+    def test_create_issue(self, browser, baseurl):
+        page_object = IssuePage(browser, baseurl)
+        page_object.go_to_page()
+        page_object.create_issue("Test issue", "Testing issue submission")
+
+        popup = browser.find_element_by_class_name("success")
+        assert popup.text == "Your new task has been added."
 
     def test_logout(self, browser, baseurl):
         self.logout(browser, baseurl)
@@ -40,27 +53,6 @@ class TestCreateIssueInPrivateProject(Base):
 # 
 # class TestFindPrivateIssueWithoutLogging(Base):
 #     def test_find_issue(self):
-#         pass
-# 
-# 
-# class TestDeleteIssueInPublicProject(Base):
-#     def test_find_issue(self):
-#         pass
-# 
-#     def test_delete_issue(self):
-#         pass
-# 
-# 
-# class TestDeleteIssueInPrivateProject(Base):
-#     def test_login(self):
-#         pass
-# 
-#     # @pytest.mark.parametrize('issueno', [(), ()])
-#     # def test_delete_issue(self, issueno):
-#     def test_delete_issue(self):
-#         pass
-# 
-#     def test_logout(self):
 #         pass
 # 
 # 

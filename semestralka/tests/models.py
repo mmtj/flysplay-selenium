@@ -47,6 +47,9 @@ class Page():
 
         return not any(project in t for t in text_opts)
 
+    def open_new_task_anonymously(self):
+        self.browser.find_element_by_link_text("Open a new Task anonymously").click()
+
 
 class LoginPage(Page):
     """Login page model"""
@@ -127,9 +130,28 @@ class ProjectPage(LoggedInPage):
 
 class IssuePage(Page):
     """Issue page model"""
+    def go_to_page(self):
+        self.browser.find_element_by_link_text("Add new task").click()
 
-    def create_issue(self):
-        pass
+    def create_anon_issue(self, summary, desc, email):
+        f_summary = self.browser.find_element_by_id("itemsummary")
+        f_desc = self.browser.find_element_by_id("details")
+        f_email = self.browser.find_element_by_id("anon_email")
+
+        f_summary.send_keys(summary)
+        f_desc.send_keys(desc)
+        f_email.send_keys(email)
+
+        self.browser.find_element_by_class_name("positive").click()
+
+    def create_issue(self, summary, desc):
+        f_summary = self.browser.find_element_by_id("itemsummary")
+        f_desc = self.browser.find_element_by_id("details")
+
+        f_summary.send_keys(summary)
+        f_desc.send_keys(desc)
+
+        self.browser.find_element_by_class_name("positive").click()
 
     def resolve_issue(self):
         pass
@@ -138,9 +160,6 @@ class IssuePage(Page):
         pass
 
     def edit_issue(self):
-        pass
-
-    def remove_issue(self):
         pass
 
 
