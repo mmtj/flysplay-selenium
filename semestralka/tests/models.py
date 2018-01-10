@@ -123,3 +123,35 @@ class ProjectPage(LoggedInPage):
         a = h2.find_element_by_tag_name("a")
 
         return a.text
+
+
+class IssuePage(Page):
+    """Issue page model"""
+
+    def create_issue(self):
+        pass
+
+    def resolve_issue(self):
+        pass
+
+    def comment_issue(self, text):
+        pass
+
+    def edit_issue(self):
+        pass
+
+    def remove_issue(self):
+        pass
+
+
+class VersionPage(Page):
+    """Page for versioning of project"""
+
+    def create_milestone(self):
+        pass
+
+    def remove_milestone(self):
+        pass
+
+    def close_milestone(self):
+        pass
