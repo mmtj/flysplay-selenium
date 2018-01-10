@@ -9,11 +9,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 
+
 ######################
 # Page object models #
 ######################
-
-
 class Page():
     """Base class of all page objects"""
     def __init__(self, browser, url):
@@ -75,6 +74,46 @@ class LoggedInPage(Page):
     def logout(self):
         self.browser.find_element_by_class_name("fa-power-off").click()
 
+    def go_to_site_admin(self):
+        self.browser.find_element_by_class_name("fa-gears").click()
+
+    def get_section_heading(self):
+        return self.browser.find_element_by_tag_name("h3")
+
+
+class AdministrationPage(Page):
+    """Administration of Flyspray"""
+    def users_and_groups(self):
+        self.browser.find_element_by_id("globuglink").click()
+
+    def register_new_user(self):
+        self.browser.find_element_by_link_text("Register New User").click()
+
+    def get_section_heading(self):
+        return self.browser.find_element_by_tag_name("h3")
+
+    def fill_new_user_form(self, username, password, role):
+        f_username = self.browser.find_element_by_id("username")
+        f_password = self.browser.find_element_by_id("userpass")
+        f_password2 = self.browser.find_element_by_id("userpass2")
+        f_name = self.browser.find_element_by_id("realname")
+        f_email = self.browser.find_element_by_id("emailaddress")
+        f_email2 = self.browser.find_element_by_id("verifyemailaddress")
+        f_role = Select(self.browser.find_element_by_id("groupin"))
+
+        emailaddr = "{}@zks.test".format(username)
+
+        f_username.send_keys(username)
+        f_password.send_keys(password)
+        f_password2.send_keys(password)
+        f_name.send_keys(username.upper())
+        f_email.send_keys(emailaddr)
+        f_email2.send_keys(emailaddr)
+        f_role.select_by_visible_text(role)
+
+    def submit_new_user_form(self):
+        self.browser.find_element_by_id("buSubmit").click()
+
 
 class ProjectPage(LoggedInPage):
     """Projects page model"""
@@ -91,8 +130,6 @@ class ProjectPage(LoggedInPage):
 #########
 # Tests #
 #########
-
-
 class Base:
     @pytest.fixture(scope="class")
     def browser(self):
@@ -104,19 +141,6 @@ class Base:
     def baseurl(self):
         url = "http://localhost/flyspray"
         return url
-
-
-class TestSeleniumCase(Base):
-    @pytest.mark.parametrize('text', ("ZKS", "public"))
-    def test_is_public(self, browser, baseurl, text):
-        browser.get(baseurl)
-
-        select = Select(browser.find_element_by_name("project"))
-        opts = select.options
-
-        text_opts = [option.text for option in opts]
-
-        assert any(text in t for t in text_opts)
 
 
 class TestLoginLogout(Base):
@@ -212,5 +236,98 @@ class TestBrowsePrivateProject(Base):
         assert project == page_object.get_project_overview_name()
 
     def test_step6_logout(self, browser, baseurl):
+        page_object = LoggedInPage(browser, baseurl)
+        page_object.logout()
+
+
+"""
+incremental => if one step fails, other fails automatically as xfailed
+xfailed == expected fail
+"""
+@pytest.mark.incremental
+class TestCreateUsers(Base):
+    """Create new users with different roles"""
+
+    testusersdata = [
+                    ("developer", "passw0rd", "Developers"),
+                    ("reporter", "report3r", "Reporters")
+                    ]
+
+    def test_step1_login_as_admin(self, browser, baseurl):
+        page_object = LoginPage(browser, baseurl)
+        page_object.go_to_url()
+
+        page_object.go_to_login_form()
+        page_object.log_in("admin", "admin123")
+
+        page_object = LoggedInPage(browser, baseurl)
+
+        assert page_object.is_logged()
+
+    def test_step2_go_to_administration(self, browser, baseurl):
+        page_object = LoggedInPage(browser, baseurl)
+        page_object.go_to_site_admin()
+
+        assert page_object.get_section_heading().text == "Administrator's Toolbox :: Preferences"
+
+    @pytest.mark.parametrize("username,password,role", testusersdata)
+    def test_step3_add_new_user(self, browser, baseurl, username, password, role):
+        page_object = AdministrationPage(browser, baseurl)
+        page_object.users_and_groups()
+
+        button = browser.find_element_by_link_text("Register New User")
+        assert button.text == "Register New User"
+
+        button.click()
+        assert page_object.get_section_heading().text == "Admin Toolbox :: All Projects : Register New User"
+
+        page_object.fill_new_user_form(username, password, role)
+        page_object.submit_new_user_form()
+
+        popup = browser.find_element_by_class_name("success")
+        assert popup.text == "New User Account has been created."
+
+    def test_step4_logout(self, browser, baseurl):
+        page_object = LoggedInPage(browser, baseurl)
+        page_object.logout()
+
+
+class TestCreateUserWhichExists(Base):
+    """Test if adding new user with existing username fails"""
+    def test_step1_login_as_admin(self, browser, baseurl):
+        page_object = LoginPage(browser, baseurl)
+        page_object.go_to_url()
+
+        page_object.go_to_login_form()
+        page_object.log_in("admin", "admin123")
+
+        page_object = LoggedInPage(browser, baseurl)
+
+        assert page_object.is_logged()
+
+    def test_step2_go_to_administration(self, browser, baseurl):
+        page_object = LoggedInPage(browser, baseurl)
+        page_object.go_to_site_admin()
+
+        assert page_object.get_section_heading().text == "Administrator's Toolbox :: Preferences"
+
+    @pytest.mark.parametrize("username,password,role", [("reporter", "password", "Reporters")])
+    def test_step3_dont_add_existing_user(self, browser, baseurl, username, password, role):
+        page_object = AdministrationPage(browser, baseurl)
+        page_object.users_and_groups()
+
+        button = browser.find_element_by_link_text("Register New User")
+        assert button.text == "Register New User"
+
+        button.click()
+        assert page_object.get_section_heading().text == "Admin Toolbox :: All Projects : Register New User"
+
+        page_object.fill_new_user_form(username, password, role)
+
+        popup = page_object.check_element_presence(By.ID, "errormessage")
+
+        assert popup.text == "That username is already taken. You will need to choose another one."
+
+    def test_step4_logout(self, browser, baseurl):
         page_object = LoggedInPage(browser, baseurl)
         page_object.logout()
