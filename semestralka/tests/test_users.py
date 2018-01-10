@@ -1,5 +1,6 @@
 import pytest
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 
 from base import Base
 from models import Page, LoginPage, LoggedInPage, AdministrationPage, ProjectPage
@@ -32,14 +33,18 @@ class TestCreateUsers(Base):
 
         assert page_object.is_logged()
 
-    def test_step2_go_to_administration(self, browser, baseurl):
+    def test_step2_has_admin_privileges(self, browser, baseurl):
+        page_object = LoggedInPage(browser, baseurl)
+        assert page_object.has_admin_privileges()
+
+    def test_step3_go_to_administration(self, browser, baseurl):
         page_object = LoggedInPage(browser, baseurl)
         page_object.go_to_site_admin()
 
         assert page_object.get_section_heading().text == "Administrator's Toolbox :: Preferences"
 
     @pytest.mark.parametrize("username,password,role", testusersdata)
-    def test_step3_add_existing_user(
+    def test_step4_add_existing_user(
                                         self,
                                         browser,
                                         baseurl,
@@ -62,7 +67,7 @@ class TestCreateUsers(Base):
         popup = browser.find_element_by_class_name("success")
         assert popup.text == "New User Account has been created."
 
-    def test_step4_logout(self, browser, baseurl):
+    def test_step5_logout(self, browser, baseurl):
         page_object = LoggedInPage(browser, baseurl)
         page_object.logout()
 
@@ -117,6 +122,26 @@ class TestCreateUserWhichExists(Base):
     def test_step4_logout(self, browser, baseurl):
         page_object = LoggedInPage(browser, baseurl)
         page_object.logout()
+
+
+class TestTryAdminPrivilegesAsNonAdmin(Base):
+    """Non admin user shouldn't have admin privileges."""
+
+    def test_step1_login_as_user(self, browser, baseurl):
+        page_object = LoginPage(browser, baseurl)
+        page_object.go_to_url()
+
+        page_object.go_to_login_form()
+        page_object.log_in("developer", "passw0rd")
+
+        page_object = LoggedInPage(browser, baseurl)
+
+        assert page_object.is_logged()
+
+    @pytest.mark.xfail(raises=NoSuchElementException)
+    def test_step2_user_has_not_admin_privileges(self, browser, baseurl):
+        page_object = LoggedInPage(browser, baseurl)
+        page_object.has_admin_privileges()
 
 
 class TestDeleteUsers(Base):

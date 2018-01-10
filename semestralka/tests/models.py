@@ -72,6 +72,9 @@ class LoggedInPage(Page):
     def go_to_site_admin(self):
         self.browser.find_element_by_class_name("fa-gears").click()
 
+    def has_admin_privileges(self):
+        return self.browser.find_element_by_class_name("fa-gears")
+
     def get_section_heading(self):
         return self.browser.find_element_by_tag_name("h3")
 
