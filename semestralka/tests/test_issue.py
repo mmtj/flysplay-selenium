@@ -7,6 +7,8 @@ from models import Page
 from models import AdministrationPage
 from models import IssuePage
 
+from config import admin_login, admin_password
+
 
 #class TestCreateIssueInPublicProject(Base):
 #    def test_create_issue(self, browser, baseurl):
@@ -23,7 +25,7 @@ from models import IssuePage
 #
 #class TestCreateIssueInPrivateProject(Base):
 #    def test_login(self, browser, baseurl):
-#        self.login(browser, baseurl, "admin", "admin123")
+#        self.login(browser, baseurl, admin_login, admin_password)
 #
 #    def test_create_issue(self, browser, baseurl):
 #        page_object = IssuePage(browser, baseurl)
@@ -53,7 +55,7 @@ from models import IssuePage
 #
 #class TestFindPrivateIssue(Base):
 #    def test_login(self, browser, baseurl):
-#        self.login(browser, baseurl, "admin", "admin123")
+#        self.login(browser, baseurl, admin_login, admin_password)
 #
 #    @pytest.mark.parametrize("issue_name", [("Test issue")])
 #    def test_find_issue(self, browser, baseurl, issue_name):
@@ -85,7 +87,7 @@ from models import IssuePage
 
 class TestIssueLifeCycle(Base):
     def test_login(self, browser, baseurl):
-        self.login(browser, baseurl, "admin", "admin123")
+        self.login(browser, baseurl, admin_login, admin_password)
 
     def test_create_issue(self, browser, baseurl):
         page_object = IssuePage(browser, baseurl)
