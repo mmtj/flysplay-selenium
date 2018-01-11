@@ -128,10 +128,22 @@ class ProjectPage(LoggedInPage):
         return a.text
 
 
+class TaskListPage(Page):
+    """Task overview page"""
+    def go_to_page(self):
+        self.browser.find_element_by_link_text("Tasklist").click()
+
+    def go_to_issue(self, name):
+        self.browser.find_element_by_link_text(name).click()
+
+
 class IssuePage(Page):
     """Issue page model"""
     def go_to_page(self):
         self.browser.find_element_by_link_text("Add new task").click()
+
+    def go_to_issue(self, name):
+        self.browser.find_element_by_link_text(name).click()
 
     def create_anon_issue(self, summary, desc, email):
         f_summary = self.browser.find_element_by_id("itemsummary")
@@ -153,14 +165,30 @@ class IssuePage(Page):
 
         self.browser.find_element_by_class_name("positive").click()
 
+    def find_issue(self, name):
+        """Jump to issue via search box"""
+        finder = self.browser.find_element_by_id("task_id")
+        finder.send_keys(name + Keys.ENTER)
+
     def resolve_issue(self):
-        pass
+        self.browser.find_element_by_link_text("Close task").click()
+
+        select = Select(self.browser.find_element_by_name("resolution_reason"))
+        select.select_by_visible_text("Implemented")
+
+        reason = self.browser.find_element_by_id("closure_comment")
+        reason.send_keys("Closed by selenium test")
+
+        self.browser.find_element_by_link_xpath('//*[@id="formclosetask"]/button').click()
 
     def comment_issue(self, text):
         pass
 
     def edit_issue(self):
         pass
+
+    def get_issue_heading(self):
+        return self.browser.find_element_by_xpath('//*[@id="taskdetailsfull"]/h2')
 
 
 class VersionPage(Page):
