@@ -189,28 +189,25 @@ class TestDeleteMilestone(Base):
     def test_logout(self, browser, baseurl):
         self.logout(browser, baseurl)
 
+
+@pytest.mark.usefixtures(
+                    "private_project",
+                    "milestone_lifecycle",
+                    "milestone_lifecycle_issue_name"
+                        )
 class TestMilestoneLifeCycle(Base):
     """
     Test full live cycle of milestone:
 
     create milestone->assign issue->resolve issue->resolve milestone
     """
-    @pytest.fixture
-    def milestone(self):
-        return "Lifecycle test milestone 48"
-
-    @pytest.fixture
-    def issue_name(self):
-        return "Test milestone issue"
-
-    @pytest.fixture
-    def project(self):
-        return "ZKS Private project"
-
     def test_login(self, browser, baseurl):
         self.login(browser, baseurl, admin_login, admin_password)
 
-    def test_create_milestone(self, browser, baseurl, milestone, project):
+    def test_create_milestone(self, browser, baseurl, milestone_lifecycle, private_project):
+        milestone = milestone_lifecycle
+        project = private_project
+
         page_object = VersionPage(browser, baseurl)
         page_object.switch_project(project)
         page_object.go_to_project_settings()
@@ -225,7 +222,11 @@ class TestMilestoneLifeCycle(Base):
         milestone_saved = browser.find_element_by_xpath(xpath_tpl.format(milestone))
         assert milestone_saved.get_attribute('value') == milestone
 
-    def test_add_issue(self, browser, baseurl, milestone, issue_name, project):
+    def test_add_issue(self, browser, baseurl, milestone_lifecycle, milestone_lifecycle_issue_name, private_project):
+        milestone = milestone_lifecycle
+        project = private_project
+        issue_name = milestone_lifecycle_issue_name
+
         page_object = IssuePage(browser, baseurl)
         page_object.switch_project(project)
         page_object.go_to_page()
@@ -234,7 +235,9 @@ class TestMilestoneLifeCycle(Base):
         popup = page_object.get_popup_message()
         assert popup.text == "Your new task has been added."
 
-    def test_resolve_issue(self, browser, baseurl, issue_name):
+    def test_resolve_issue(self, browser, baseurl, milestone_lifecycle_issue_name):
+        issue_name = milestone_lifecycle_issue_name
+
         page_object = IssuePage(browser, baseurl)
         page_object.go_to_tasklist()
         page_object.go_to_issue(issue_name)
@@ -243,7 +246,10 @@ class TestMilestoneLifeCycle(Base):
         popup = page_object.get_popup_message()
         assert popup.text == "Task has been closed."
 
-    def test_close_milestone(self, browser, baseurl, milestone, project):
+    def test_close_milestone(self, browser, baseurl, milestone_lifecycle, private_project):
+        project = private_project
+        milestone = milestone_lifecycle
+
         page_object = VersionPage(browser, baseurl)
         page_object.switch_project(project)
         page_object.go_to_project_settings()
