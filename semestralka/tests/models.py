@@ -171,7 +171,7 @@ class IssuePage(Page):
         f_desc = self.browser.find_element_by_id("details")
 
         if milestone:
-            f_version = Select(self.browser.find_element_by_name("dueversion"))
+            f_version = Select(self.browser.find_element_by_id("dueversion"))
             f_version.select_by_visible_text(milestone)
 
         f_summary.send_keys(summary)
@@ -219,6 +219,10 @@ class IssuePage(Page):
 
 class VersionPage(Page):
     """Page for versioning of project"""
+    def _submit_update(self):
+        update_btn = self.browser.find_element_by_xpath('//*[@id="listTable"]/tfoot/tr/td[2]/button')
+        update_btn.click()
+
     def go_to_project_settings(self):
         self.browser.find_element_by_link_text("Manage Project").click()
 
@@ -239,8 +243,13 @@ class VersionPage(Page):
         chkbox = self.browser.find_element_by_xpath(xpath_tpl.format(milestone))
         chkbox.click()
 
-        update_btn = self.browser.find_element_by_xpath('//*[@id="listTable"]/tfoot/tr/td[2]/button')
-        update_btn.click()
+        self._submit_update()
 
-    def close_milestone(self):
-        pass
+    def close_milestone(self, milestone):
+        """Close milestone by making it present => current version"""
+        xpath_tpl = "//table[@id='listTable']//input[@value='{}']/../../td[4]/select"
+
+        f_tense = Select(self.browser.find_element_by_xpath(xpath_tpl.format(milestone)))
+        f_tense.select_by_visible_text("Present")
+
+        self._submit_update()
