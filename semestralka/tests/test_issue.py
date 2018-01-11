@@ -4,11 +4,8 @@ from selenium.common.exceptions import NoSuchElementException
 
 from base import Base
 from models import Page
-from models import AdministrationPage
 from models import IssuePage
 from models import VersionPage
-
-from config import admin_login, admin_password
 
 
 class TestCreateIssueInPublicProject(Base):
@@ -24,8 +21,9 @@ class TestCreateIssueInPublicProject(Base):
         assert popup.text == "Your new task has been added."
 
 
+@pytest.mark.usefixtures("admin_login", "admin_password")
 class TestCreateIssueInPrivateProject(Base):
-    def test_login(self, browser, baseurl):
+    def test_login(self, browser, baseurl, admin_login, admin_password):
         self.login(browser, baseurl, admin_login, admin_password)
 
     def test_create_issue(self, browser, baseurl):
@@ -54,8 +52,9 @@ class TestFindPublicIssue(Base):
         assert issue_name in heading.text
 
 
+@pytest.mark.usefixtures("admin_login", "admin_password")
 class TestFindPrivateIssue(Base):
-    def test_login(self, browser, baseurl):
+    def test_login(self, browser, baseurl, admin_login, admin_password):
         self.login(browser, baseurl, admin_login, admin_password)
 
     @pytest.mark.parametrize("issue_name", [("Test issue")])
@@ -86,8 +85,9 @@ class TestFindPrivateIssueWithoutLogging(Base):
         page_object.go_to_issue(issue_name)
 
 
+@pytest.mark.usefixtures("admin_login", "admin_password")
 class TestIssueLifeCycle(Base):
-    def test_login(self, browser, baseurl):
+    def test_login(self, browser, baseurl, admin_login, admin_password):
         self.login(browser, baseurl, admin_login, admin_password)
 
     def test_create_issue(self, browser, baseurl):
@@ -132,19 +132,19 @@ class TestIssueLifeCycle(Base):
         self.logout(browser, baseurl)
 
 
+@pytest.mark.usefixtures(
+                    "admin_login",
+                    "admin_password",
+                    "future_milestone",
+                    "private_project")
 class TestCreateMilestone(Base):
-    @pytest.fixture
-    def milestone(self):
-        return "Future test milestone"
-
-    @pytest.fixture
-    def project(self):
-        return "ZKS Private project"
-
-    def test_login(self, browser, baseurl):
+    def test_login(self, browser, baseurl, admin_login, admin_password):
         self.login(browser, baseurl, admin_login, admin_password)
 
-    def test_create_milestone(self, browser, baseurl, milestone, project):
+    def test_create_milestone(self, browser, baseurl, future_milestone, private_project):
+        milestone = future_milestone
+        project = private_project
+
         page_object = VersionPage(browser, baseurl)
         page_object.switch_project(project)
         page_object.go_to_project_settings()
@@ -163,19 +163,19 @@ class TestCreateMilestone(Base):
         self.logout(browser, baseurl)
 
 
+@pytest.mark.usefixtures(
+                    "admin_login",
+                    "admin_password",
+                    "future_milestone",
+                    "private_project")
 class TestDeleteMilestone(Base):
-    @pytest.fixture
-    def milestone(self):
-        return "Future test milestone"
-
-    @pytest.fixture
-    def project(self):
-        return "ZKS Private project"
-
-    def test_login(self, browser, baseurl):
+    def test_login(self, browser, baseurl, admin_login, admin_password):
         self.login(browser, baseurl, admin_login, admin_password)
 
-    def test_delete_milestone(self, browser, baseurl, milestone, project):
+    def test_delete_milestone(self, browser, baseurl, future_milestone, private_project):
+        milestone = future_milestone
+        project = private_project
+
         page_object = VersionPage(browser, baseurl)
         page_object.switch_project(project)
         page_object.go_to_project_settings()
@@ -193,15 +193,16 @@ class TestDeleteMilestone(Base):
 @pytest.mark.usefixtures(
                     "private_project",
                     "milestone_lifecycle",
-                    "milestone_lifecycle_issue_name"
-                        )
+                    "milestone_lifecycle_issue_name",
+                    "admin_login",
+                    "admin_password")
 class TestMilestoneLifeCycle(Base):
     """
     Test full live cycle of milestone:
 
     create milestone->assign issue->resolve issue->resolve milestone
     """
-    def test_login(self, browser, baseurl):
+    def test_login(self, browser, baseurl, admin_login, admin_password):
         self.login(browser, baseurl, admin_login, admin_password)
 
     def test_create_milestone(self, browser, baseurl, milestone_lifecycle, private_project):

@@ -28,3 +28,18 @@ def milestone_lifecycle_issue_name():
 @pytest.fixture()
 def private_project():
     return "ZKS Private project"
+
+
+@pytest.fixture
+def future_milestone():
+    return "Future test milestone"
+
+
+@pytest.fixture
+def admin_login():
+    return "admin"
+
+
+@pytest.fixture
+def admin_password():
+    return "admin123"

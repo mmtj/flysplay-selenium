@@ -138,15 +138,6 @@ class ProjectPage(LoggedInPage):
         return a.text
 
 
-# class TaskListPage(Page):
-#     """Task overview page"""
-#     def go_to_page(self):
-#         self.browser.find_element_by_link_text("Tasklist").click()
-# 
-#     def go_to_issue(self, name):
-#         self.browser.find_element_by_link_text(name).click()
-
-
 class IssuePage(Page):
     """Issue page model"""
     def go_to_page(self):
