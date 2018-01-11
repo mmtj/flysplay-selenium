@@ -50,6 +50,12 @@ class Page():
     def open_new_task_anonymously(self):
         self.browser.find_element_by_link_text("Open a new Task anonymously").click()
 
+    def go_to_tasklist(self):
+        self.browser.find_element_by_link_text("Tasklist").click()
+
+    def get_popup_message(self):
+        return self.browser.find_element_by_class_name("success")
+
 
 class LoginPage(Page):
     """Login page model"""
@@ -128,13 +134,13 @@ class ProjectPage(LoggedInPage):
         return a.text
 
 
-class TaskListPage(Page):
-    """Task overview page"""
-    def go_to_page(self):
-        self.browser.find_element_by_link_text("Tasklist").click()
-
-    def go_to_issue(self, name):
-        self.browser.find_element_by_link_text(name).click()
+# class TaskListPage(Page):
+#     """Task overview page"""
+#     def go_to_page(self):
+#         self.browser.find_element_by_link_text("Tasklist").click()
+# 
+#     def go_to_issue(self, name):
+#         self.browser.find_element_by_link_text(name).click()
 
 
 class IssuePage(Page):
@@ -163,7 +169,7 @@ class IssuePage(Page):
         f_summary.send_keys(summary)
         f_desc.send_keys(desc)
 
-        self.browser.find_element_by_class_name("positive").click()
+        self._submit_form()
 
     def find_issue(self, name):
         """Jump to issue via search box"""
@@ -171,7 +177,7 @@ class IssuePage(Page):
         finder.send_keys(name + Keys.ENTER)
 
     def resolve_issue(self):
-        self.browser.find_element_by_link_text("Close task").click()
+        self.browser.find_element_by_id("closetask").click()
 
         select = Select(self.browser.find_element_by_name("resolution_reason"))
         select.select_by_visible_text("Implemented")
@@ -179,16 +185,32 @@ class IssuePage(Page):
         reason = self.browser.find_element_by_id("closure_comment")
         reason.send_keys("Closed by selenium test")
 
-        self.browser.find_element_by_link_xpath('//*[@id="formclosetask"]/button').click()
+        self.browser.find_element_by_xpath('//*[@id="formclosetask"]/button').click()
 
     def comment_issue(self, text):
-        pass
+        texarea = self.browser.find_element_by_id("comment_text")
+        texarea.send_keys(text)
 
-    def edit_issue(self):
-        pass
+        self._submit_form()
+
+    def edit_issue_priority(self):
+        """Change task priority to high"""
+        self.browser.find_element_by_id("edittask").click()
+
+        select = Select(self.browser.find_element_by_id("priority"))
+        select.select_by_visible_text("High")
+
+        self._submit_form()
 
     def get_issue_heading(self):
         return self.browser.find_element_by_xpath('//*[@id="taskdetailsfull"]/h2')
+
+    def find_comment(self, comment):
+        return self.browser.find_element_by_xpath('//div[@id="comments"]//div[@class="commenttext"]/p[1]')
+
+    def _submit_form(self):
+        """Submit buttons are usually named 'positive'"""
+        self.browser.find_element_by_class_name("positive").click()
 
 
 class VersionPage(Page):
