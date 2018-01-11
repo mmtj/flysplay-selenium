@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
 from base import Base
-from models import Page, LoginPage, LoggedInPage, AdministrationPage, ProjectPage
+from models import Page, LoginPage, LoggedInPage, ProjectPage, AdministrationPage
 
 """
 incremental => if one step fails, other fails automatically as xfailed
@@ -138,10 +138,10 @@ class TestTryAdminPrivilegesAsNonAdmin(Base):
 
         assert page_object.is_logged()
 
-    @pytest.mark.xfail(raises=NoSuchElementException)
     def test_step2_user_has_not_admin_privileges(self, browser, baseurl):
-        page_object = LoggedInPage(browser, baseurl)
-        page_object.has_admin_privileges()
+        with pytest.raises(NoSuchElementException):
+            page_object = LoggedInPage(browser, baseurl)
+            page_object.has_admin_privileges()
 
 
 class TestDeleteUsers(Base):
