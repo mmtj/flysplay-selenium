@@ -56,6 +56,10 @@ class Page():
     def get_popup_message(self):
         return self.browser.find_element_by_class_name("success")
 
+    def _submit_form(self):
+        """Submit buttons are usually named 'positive'"""
+        self.browser.find_element_by_class_name("positive").click()
+
 
 class LoginPage(Page):
     """Login page model"""
@@ -162,9 +166,13 @@ class IssuePage(Page):
 
         self.browser.find_element_by_class_name("positive").click()
 
-    def create_issue(self, summary, desc):
+    def create_issue(self, summary, desc, milestone=None):
         f_summary = self.browser.find_element_by_id("itemsummary")
         f_desc = self.browser.find_element_by_id("details")
+
+        if milestone:
+            f_version = Select(self.browser.find_element_by_name("dueversion"))
+            f_version.select_by_visible_text(milestone)
 
         f_summary.send_keys(summary)
         f_desc.send_keys(desc)
@@ -208,19 +216,31 @@ class IssuePage(Page):
     def find_comment(self, comment):
         return self.browser.find_element_by_xpath('//div[@id="comments"]//div[@class="commenttext"]/p[1]')
 
-    def _submit_form(self):
-        """Submit buttons are usually named 'positive'"""
-        self.browser.find_element_by_class_name("positive").click()
-
 
 class VersionPage(Page):
     """Page for versioning of project"""
+    def go_to_project_settings(self):
+        self.browser.find_element_by_link_text("Manage Project").click()
 
-    def create_milestone(self):
-        pass
+    def go_to_version(self):
+        self.browser.find_element_by_link_text("Versions").click()
 
-    def remove_milestone(self):
-        pass
+    def create_milestone(self, milestone):
+        f_version = self.browser.find_element_by_id("listnamenew")
+        f_version.send_keys(milestone)
+
+        f_tense = Select(self.browser.find_element_by_id("tensenew"))
+        f_tense.select_by_visible_text("Future")
+
+        self._submit_form()
+
+    def remove_milestone(self, milestone):
+        xpath_tpl = "//table[@id='listTable']//input[@value='{}']/../../td[5]/input"
+        chkbox = self.browser.find_element_by_xpath(xpath_tpl.format(milestone))
+        chkbox.click()
+
+        update_btn = self.browser.find_element_by_xpath('//*[@id="listTable"]/tfoot/tr/td[2]/button')
+        update_btn.click()
 
     def close_milestone(self):
         pass

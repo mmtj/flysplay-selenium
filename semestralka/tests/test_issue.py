@@ -6,83 +6,84 @@ from base import Base
 from models import Page
 from models import AdministrationPage
 from models import IssuePage
+from models import VersionPage
 
 from config import admin_login, admin_password
 
 
-#class TestCreateIssueInPublicProject(Base):
-#    def test_create_issue(self, browser, baseurl):
-#        page_object = Page(browser, baseurl)
-#        page_object.go_to_url()
-#        page_object.open_new_task_anonymously()
-#
-#        issue_page_object = IssuePage(browser, baseurl)
-#        issue_page_object.create_anon_issue("Test anon issue", "Testing anonymous issue submission", "anonymous@anon.ym")
-#
-#        popup = browser.find_element_by_class_name("success")
-#        assert popup.text == "Your new task has been added."
-#
-#
-#class TestCreateIssueInPrivateProject(Base):
-#    def test_login(self, browser, baseurl):
-#        self.login(browser, baseurl, admin_login, admin_password)
-#
-#    def test_create_issue(self, browser, baseurl):
-#        page_object = IssuePage(browser, baseurl)
-#        page_object.switch_project("ZKS Private project")
-#        page_object.go_to_page()
-#        page_object.create_issue("Test issue", "Testing issue submission")
-#
-#        popup = browser.find_element_by_class_name("success")
-#        assert popup.text == "Your new task has been added."
-#
-#    def test_logout(self, browser, baseurl):
-#        self.logout(browser, baseurl)
-#
-#
-#class TestFindPublicIssue(Base):
-#    @pytest.mark.parametrize("issue_name", [("Test anon issue")])
-#    def test_find_issue(self, browser, baseurl, issue_name):
-#        page_object = IssuePage(browser, baseurl)
-#        page_object.go_to_url()
-#        page_object.find_issue(issue_name)
-#        page_object.go_to_issue(issue_name)
-#
-#        heading = page_object.get_issue_heading()
-#
-#        assert issue_name in heading.text
-#
-#
-#class TestFindPrivateIssue(Base):
-#    def test_login(self, browser, baseurl):
-#        self.login(browser, baseurl, admin_login, admin_password)
-#
-#    @pytest.mark.parametrize("issue_name", [("Test issue")])
-#    def test_find_issue(self, browser, baseurl, issue_name):
-#        page_object = IssuePage(browser, baseurl)
-#        page_object.switch_project("ZKS Private project")
-#        page_object.go_to_issue(issue_name)
-#
-#        heading = page_object.get_issue_heading()
-#
-#        assert issue_name in heading.text
-#
-#    def test_logout(self, browser, baseurl):
-#        self.logout(browser, baseurl)
-#
-#
-#class TestFindPrivateIssueWithoutLogging(Base):
-#    """
-#    Try to access issue in private repository
-#    It should FAIL
-#    """
-#    @pytest.mark.xfail(raises=NoSuchElementException)
-#    @pytest.mark.parametrize("issue_name", [("Test issue")])
-#    def test_find_issue(self, browser, baseurl, issue_name):
-#        page_object = IssuePage(browser, baseurl)
-#        page_object.go_to_url()
-#        page_object.find_issue(issue_name)
-#        page_object.go_to_issue(issue_name)
+class TestCreateIssueInPublicProject(Base):
+    def test_create_issue(self, browser, baseurl):
+        page_object = Page(browser, baseurl)
+        page_object.go_to_url()
+        page_object.open_new_task_anonymously()
+
+        issue_page_object = IssuePage(browser, baseurl)
+        issue_page_object.create_anon_issue("Test anon issue", "Testing anonymous issue submission", "anonymous@anon.ym")
+
+        popup = browser.find_element_by_class_name("success")
+        assert popup.text == "Your new task has been added."
+
+
+class TestCreateIssueInPrivateProject(Base):
+    def test_login(self, browser, baseurl):
+        self.login(browser, baseurl, admin_login, admin_password)
+
+    def test_create_issue(self, browser, baseurl):
+        page_object = IssuePage(browser, baseurl)
+        page_object.switch_project("ZKS Private project")
+        page_object.go_to_page()
+        page_object.create_issue("Test issue", "Testing issue submission")
+
+        popup = browser.find_element_by_class_name("success")
+        assert popup.text == "Your new task has been added."
+
+    def test_logout(self, browser, baseurl):
+        self.logout(browser, baseurl)
+
+
+class TestFindPublicIssue(Base):
+    @pytest.mark.parametrize("issue_name", [("Test anon issue")])
+    def test_find_issue(self, browser, baseurl, issue_name):
+        page_object = IssuePage(browser, baseurl)
+        page_object.go_to_url()
+        page_object.find_issue(issue_name)
+        page_object.go_to_issue(issue_name)
+
+        heading = page_object.get_issue_heading()
+
+        assert issue_name in heading.text
+
+
+class TestFindPrivateIssue(Base):
+    def test_login(self, browser, baseurl):
+        self.login(browser, baseurl, admin_login, admin_password)
+
+    @pytest.mark.parametrize("issue_name", [("Test issue")])
+    def test_find_issue(self, browser, baseurl, issue_name):
+        page_object = IssuePage(browser, baseurl)
+        page_object.switch_project("ZKS Private project")
+        page_object.go_to_issue(issue_name)
+
+        heading = page_object.get_issue_heading()
+
+        assert issue_name in heading.text
+
+    def test_logout(self, browser, baseurl):
+        self.logout(browser, baseurl)
+
+
+class TestFindPrivateIssueWithoutLogging(Base):
+    """
+    Try to access issue in private repository
+    It should FAIL
+    """
+    @pytest.mark.xfail(raises=NoSuchElementException)
+    @pytest.mark.parametrize("issue_name", [("Test issue")])
+    def test_find_issue(self, browser, baseurl, issue_name):
+        page_object = IssuePage(browser, baseurl)
+        page_object.go_to_url()
+        page_object.find_issue(issue_name)
+        page_object.go_to_issue(issue_name)
 
 
 class TestIssueLifeCycle(Base):
@@ -131,48 +132,84 @@ class TestIssueLifeCycle(Base):
         self.logout(browser, baseurl)
 
 
-# class TestCreateMilestone(Base):
-#     def test_login(self):
-#         pass
-# 
-#     def test_create_milestone(self):
-#         pass
-# 
-#     def test_logout(self):
-#         pass
-# 
-# 
-# class TestDeleteMilestone(Base):
-#     def test_login(self):
-#         pass
-# 
-#     def test_delete_milestone(self):
-#         pass
-# 
-#     def test_logout(self):
-#         pass
-# 
-# 
-# class TestMilestoneLifeCycle(Base):
-#     """
-#     Test full live cycle of milestone:
-# 
-#     create milestone->assign issue->resolve issue->resolve milestone
-#     """
-#     def test_login(self):
-#         pass
-# 
-#     def test_create_milestone(self):
-#         pass
-# 
-#     def test_add_issue(self):
-#         pass
-# 
-#     def test_resolve_issue(self):
-#         pass
-# 
-#     def test_close_milestone(self):
-#         pass
-# 
-#     def test_logout(self):
-#         pass
+class TestCreateMilestone(Base):
+    def test_login(self, browser, baseurl):
+        self.login(browser, baseurl, admin_login, admin_password)
+
+    @pytest.mark.parametrize("milestone", [("Future test milestone")])
+    def test_create_milestone(self, browser, baseurl, milestone):
+        page_object = VersionPage(browser, baseurl)
+        page_object.switch_project("ZKS Private project")
+        page_object.go_to_project_settings()
+        page_object.go_to_version()
+        page_object.create_milestone(milestone)
+
+        popup = page_object.get_popup_message()
+        assert popup.text == "New list item added."
+
+        xpath_tpl = "//table[@id='listTable']//input[@value='{}']"
+
+        milestone_saved = browser.find_element_by_xpath(xpath_tpl.format(milestone))
+        assert milestone_saved.get_attribute('value') == milestone
+
+    def test_logout(self, browser, baseurl):
+        self.logout(browser, baseurl)
+
+
+class TestDeleteMilestone(Base):
+    def test_login(self, browser, baseurl):
+        self.login(browser, baseurl, admin_login, admin_password)
+
+    @pytest.mark.parametrize("milestone", [("Future test milestone")])
+    def test_delete_milestone(self, browser, baseurl, milestone):
+        page_object = VersionPage(browser, baseurl)
+        page_object.switch_project("ZKS Private project")
+        page_object.go_to_project_settings()
+        page_object.go_to_version()
+        page_object.remove_milestone(milestone)
+
+        with pytest.raises(NoSuchElementException):
+            xpath_tpl = "//table[@id='listTable']//input[@value='{}']"
+            browser.find_element_by_xpath(xpath_tpl.format(milestone))
+
+    def test_logout(self, browser, baseurl):
+        self.logout(browser, baseurl)
+
+class TestMilestoneLifeCycle(Base):
+    """
+    Test full live cycle of milestone:
+
+    create milestone->assign issue->resolve issue->resolve milestone
+    """
+    def test_login(self, browser, baseurl):
+        self.login(browser, baseurl, admin_login, admin_password)
+
+    def test_create_milestone(self):
+        pass
+
+    def test_add_issue(self, browser, baseurl):
+        page_object = IssuePage(browser, baseurl)
+        page_object.switch_project("ZKS Private project")
+        page_object.go_to_page()
+        page_object.create_issue("Test milestone issue", "Testing issue submission form milestone test", "Milestone1")
+        # TODO: set milestone
+
+        popup = page_object.get_popup_message()
+        assert popup.text == "Your new task has been added."
+
+
+    @pytest.mark.parametrize("issue_name", [("Test issue lifecycle")])
+    def test_resolve_issue(self, browser, baseurl, issue_name):
+        page_object = IssuePage(browser, baseurl)
+        page_object.go_to_tasklist()
+        page_object.go_to_issue(issue_name)
+        page_object.resolve_issue()
+
+        popup = page_object.get_popup_message()
+        assert popup.text == "Task has been closed."
+
+    def test_close_milestone(self):
+        pass
+
+    def test_logout(self, browser, baseurl):
+        self.logout(browser, baseurl)
