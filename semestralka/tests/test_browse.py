@@ -1,16 +1,17 @@
 import pytest
 
 from base import Base
-from models import Page, LoginPage, LoggedInPage, AdministrationPage, ProjectPage
+from models import Page, LoginPage, LoggedInPage, ProjectPage
 
 
+@pytest.mark.usefixtures("admin_login", "admin_password")
 class TestLoginLogout(Base):
-    def test_step1_login(self, browser, baseurl):
+    def test_step1_login(self, browser, baseurl, admin_login, admin_password):
         page_object = LoginPage(browser, baseurl)
         page_object.go_to_url()
 
         page_object.go_to_login_form()
-        page_object.log_in("admin", "admin123")
+        page_object.log_in(admin_login, admin_password)
 
         page_object = LoggedInPage(browser, baseurl)
 
@@ -31,6 +32,7 @@ class TestLoginLogout(Base):
         assert page_object.login_failure()
 
 
+@pytest.mark.usefixtures("public_project")
 class TestBrowsePublicProject(Base):
     """Simple test case to browse public projects"""
     @pytest.fixture
@@ -42,54 +44,59 @@ class TestBrowsePublicProject(Base):
         page_object = Page(browser, baseurl)
         page_object.go_to_url()
 
-    def test_step2_switch_project(self, browser, baseurl, project):
+    def test_step2_switch_project(self, browser, baseurl, public_project):
+        project = public_project
+
         page_object = Page(browser, baseurl)
         page_object.switch_project(project)
 
         assert project == page_object.get_project_name()
 
-    def test_step3_project_overview_test(self, browser, baseurl, project):
-        page_object = ProjectPage(browser, baseurl)
+    def test_step3_project_overview_test(self, browser, baseurl, public_project):
+        project = public_project
 
+        page_object = ProjectPage(browser, baseurl)
         page_object.go_to_project_overview_page()
 
         assert project == page_object.get_project_overview_name()
 
 
+@pytest.mark.usefixtures("admin_login", "admin_password", "private_project")
 class TestBrowsePrivateProject(Base):
     """Simple test case to browse private projects"""
-    @pytest.fixture
-    def project(self):
-        project = "ZKS Private project"
-        return project
-
     def test_step1_goto_page(self, browser, baseurl):
         page_object = Page(browser, baseurl)
         page_object.go_to_url()
 
-    def test_step2_try_switch_project(self, browser, baseurl, project):
+    def test_step2_try_switch_project(self, browser, baseurl, private_project):
+        project = private_project
+
         page_object = Page(browser, baseurl)
 
         assert page_object.project_not_visible(project)
 
-    def test_step3_login(self, browser, baseurl):
+    def test_step3_login(self, browser, baseurl, admin_login, admin_password):
         page_object = LoginPage(browser, baseurl)
         page_object.go_to_url()
 
         page_object.go_to_login_form()
-        page_object.log_in("admin", "admin123")
+        page_object.log_in(admin_login, admin_password)
 
         page_object = LoggedInPage(browser, baseurl)
 
         assert page_object.is_logged()
 
-    def test_step4_switch_project(self, browser, baseurl, project):
+    def test_step4_switch_project(self, browser, baseurl, private_project):
+        project = private_project
+
         page_object = Page(browser, baseurl)
         page_object.switch_project(project)
 
         assert project == page_object.get_project_name()
 
-    def test_step5_project_overview_test(self, browser, baseurl, project):
+    def test_step5_project_overview_test(self, browser, baseurl, private_project):
+        project = private_project
+
         page_object = ProjectPage(browser, baseurl)
 
         page_object.go_to_project_overview_page()

@@ -15,19 +15,24 @@ def pytest_runtest_setup(item):
             pytest.xfail("previous test failed (%s)" %previousfailed.name)
 
 # fixtures
-@pytest.fixture()
+@pytest.fixture
 def milestone_lifecycle():
     return "Lifecycle test milestone"
 
 
-@pytest.fixture()
+@pytest.fixture
 def milestone_lifecycle_issue_name():
     return "Test milestone issue"
 
 
-@pytest.fixture()
+@pytest.fixture
 def private_project():
     return "ZKS Private project"
+
+
+@pytest.fixture
+def public_project():
+    return "ZKS public project"
 
 
 @pytest.fixture
