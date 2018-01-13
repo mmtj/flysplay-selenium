@@ -21,6 +21,8 @@ class TestLoginLogout(Base):
         page_object = LoggedInPage(browser, baseurl)
         page_object.logout()
 
+
+class TestLoginWithInvalidCredentials(Base):
     def test_invalid_credentials(self, browser, baseurl):
         page_object = LoginPage(browser, baseurl)
 
