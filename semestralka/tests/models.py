@@ -103,7 +103,7 @@ class AdministrationPage(Page):
     def get_section_heading(self):
         return self.browser.find_element_by_tag_name("h3")
 
-    def fill_new_user_form(self, username, password, role):
+    def fill_new_user_form(self, username, password, role, timezone=None, notification=None):
         f_username = self.browser.find_element_by_id("username")
         f_password = self.browser.find_element_by_id("userpass")
         f_password2 = self.browser.find_element_by_id("userpass2")
@@ -111,6 +111,14 @@ class AdministrationPage(Page):
         f_email = self.browser.find_element_by_id("emailaddress")
         f_email2 = self.browser.find_element_by_id("verifyemailaddress")
         f_role = Select(self.browser.find_element_by_id("groupin"))
+
+        if timezone:
+            f_timezone = Select(self.browser.find_element_by_id("time_zone"))
+            f_timezone.select_by_visible_text(timezone)
+
+        if notification:
+            f_notification = Select(self.browser.find_element_by_id("notify_type"))
+            f_notification.select_by_visible_text(notification)
 
         emailaddr = "{}@zks.test".format(username)
 
