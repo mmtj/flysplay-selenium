@@ -12,7 +12,7 @@ class TestUserDataConsistency(Base):
 
     @pytest.fixture
     def user_metadata(self):
-        return [("consistency_user", "consistency_passwd", "Basis")]
+        return ("consistency_user", "consistency_passwd", "Basic")
 
     @pytest.mark.usesfixtures("admin_login", "admin_password")
     def test_step1_login_as_admin(self, browser, baseurl, admin_login, admin_password):
@@ -28,7 +28,7 @@ class TestUserDataConsistency(Base):
 
         assert page_object.get_section_heading().text == "Administrator's Toolbox :: Preferences"
 
-    @pytest.mark.parametrize("button_label", (("Register New User")))
+    @pytest.mark.parametrize("button_label", [("Register New User")])
     def test_step4_add_new_user(
                                     self,
                                     browser,
@@ -53,7 +53,7 @@ class TestUserDataConsistency(Base):
         popup = browser.find_element_by_class_name("success")
         assert popup.text == "New User Account has been created."
 
-    @pytest.mark.parametrize("button_label", (("View All Users")))
+    @pytest.mark.parametrize("button_label", [("View All Users")])
     def test_step5_check_if_user_exists(
                                             self,
                                             browser,
@@ -78,19 +78,19 @@ class TestUserDataConsistency(Base):
         xpath_tpl = '//*[@id="editallusers"]/table//td[text() = "{}"]/../td[2]/a'
         browser.find_element_by_xpath(xpath_tpl.format(username)).click()
 
-        assert page_object.get_section_heading().text == "Admin Toolbox :: Edit user : {}".format(username)
+        assert page_object.get_section_heading().text == "Administrator's Toolbox :: Edit user : {}".format(username)
 
         s_real_name = browser.find_element_by_xpath('//*[@id="toolbox"]/fieldset//li[./label/text()="Real Name"]/input').get_attribute("value")
         assert s_real_name == real_name
 
-        s_email = browser.find_element_by_xpath('//*[@id="toolbox"]/fieldset//li[./label/text()="Real Name"]/input').get_attribute("value")
+        s_email = browser.find_element_by_xpath('//*[@id="toolbox"]/fieldset//li[./label/text()="Email Address"]/input').get_attribute("value")
         assert s_email == email
 
         s_group_drop_down = Select(browser.find_element_by_xpath('//*[@id="toolbox"]/fieldset//li[./label/text()="Global Group"]/select'))
         group_exists = False
 
         for opt in s_group_drop_down.options:
-            if opt == group:
+            if opt.text == group:
                 group_exists = True
                 break
 
