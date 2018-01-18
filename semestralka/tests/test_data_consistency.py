@@ -1,10 +1,9 @@
 import pytest
-from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import Select
 
 from base import Base
-from models import LoginPage, LoggedInPage, AdministrationPage
+from models import LoggedInPage, AdministrationPage
 
 
 class TestUserDataConsistency(Base):

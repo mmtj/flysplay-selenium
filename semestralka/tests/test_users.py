@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
 from base import Base
-from models import Page, LoginPage, LoggedInPage, ProjectPage, AdministrationPage
+from models import LoginPage, LoggedInPage, AdministrationPage
 
 """
 incremental => if one step fails, other fails automatically as xfailed
