@@ -98,3 +98,76 @@ class TestUserDataConsistency(Base):
 
     def test_step6_logout(self, browser, baseurl):
         self.logout(browser, baseurl)
+
+
+class TestDeletedUserDataConsistency(Base):
+    """Delete user and check user does not exist"""
+
+    @pytest.fixture
+    def user_metadata(self):
+        return ("consistency_user", "consistency_passwd", "Basic")
+
+    @pytest.mark.usesfixtures("admin_login", "admin_password")
+    def test_step1_login_as_admin(self, browser, baseurl, admin_login, admin_password):
+        self.login(browser, baseurl, admin_login, admin_password)
+
+    def test_step2_has_admin_privileges(self, browser, baseurl):
+        page_object = LoggedInPage(browser, baseurl)
+        assert page_object.has_admin_privileges()
+
+    def test_step3_go_to_administration(self, browser, baseurl):
+        page_object = LoggedInPage(browser, baseurl)
+        page_object.go_to_site_admin()
+
+        assert page_object.get_section_heading().text == "Administrator's Toolbox :: Preferences"
+
+    @pytest.mark.parametrize("button_label", [("View All Users")])
+    def test_step4_delete_users(self, browser, baseurl, button_label, user_metadata):
+        page_object = AdministrationPage(browser, baseurl)
+        page_object.users_and_groups()
+
+        button = browser.find_element_by_link_text(button_label)
+        assert button.text == button_label
+
+        button.click()
+        assert page_object.get_section_heading().text == "Admin Toolbox :: All Projects : View All Users"
+
+        # find checkbox that is in first td of row
+        username = user_metadata[0]
+        xpath_tpl = '//*[@id="editallusers"]/table//td[text() = "{}"]/../td/input'
+
+        chkbox = browser.find_element_by_xpath(xpath_tpl.format(username))
+        chkbox.click()
+
+        browser.find_element_by_name("delete").click()
+
+        popup = browser.find_element_by_id("successanderrors")
+
+        assert popup.text == "Users sucessfully updated"
+
+    @pytest.mark.parametrize("button_label", [("View All Users")])
+    def test_step5_check_if_user_dont_exist(
+                                            self,
+                                            browser,
+                                            baseurl,
+                                            button_label,
+                                            user_metadata
+                                        ):
+        page_object = AdministrationPage(browser, baseurl)
+        page_object.users_and_groups()
+
+        button = browser.find_element_by_link_text(button_label)
+        assert button.text == button_label
+
+        button.click()
+        assert page_object.get_section_heading().text == "Admin Toolbox :: All Projects : {}".format(button_label)
+
+        username = user_metadata[0]
+
+        xpath_tpl = '//*[@id="editallusers"]/table//td[text() = "{}"]/../td[2]/a'
+
+        with pytest.raises(NoSuchElementException):
+            browser.find_element_by_xpath(xpath_tpl.format(username))
+
+    def test_step6_logout(self, browser, baseurl):
+        self.logout(browser, baseurl)
