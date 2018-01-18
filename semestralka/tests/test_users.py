@@ -72,7 +72,6 @@ class TestCreateUsers(Base):
         page_object.logout()
 
 
-@pytest.mark.usefixtures("pairwise_data")
 class TestCreateUsersPairWise(Base):
     """Create new users with pairs permutations"""
 
@@ -84,16 +83,9 @@ class TestCreateUsersPairWise(Base):
     def button_label_view(self):
         return "View All Users"
 
-    def test_step1_login_as_admin(self, browser, baseurl):
-        page_object = LoginPage(browser, baseurl)
-        page_object.go_to_url()
-
-        page_object.go_to_login_form()
-        page_object.log_in("admin", "admin123")
-
-        page_object = LoggedInPage(browser, baseurl)
-
-        assert page_object.is_logged()
+    @pytest.mark.usesfixtures("admin_login", "admin_password")
+    def test_step1_login_as_admin(self, browser, baseurl, admin_login, admin_password):
+        self.login(browser, baseurl, admin_login, admin_password)
 
     def test_step2_has_admin_privileges(self, browser, baseurl):
         page_object = LoggedInPage(browser, baseurl)
@@ -105,6 +97,7 @@ class TestCreateUsersPairWise(Base):
 
         assert page_object.get_section_heading().text == "Administrator's Toolbox :: Preferences"
 
+    @pytest.mark.usefixtures("pairwise_data")
     def test_register_new_users(self, browser, baseurl, button_label, pairwise_data):
         username, password, role, timezone, notification = pairwise_data
         page_object = AdministrationPage(browser, baseurl)
@@ -122,6 +115,7 @@ class TestCreateUsersPairWise(Base):
         popup = browser.find_element_by_class_name("success")
         assert popup.text == "New User Account has been created."
 
+    @pytest.mark.usefixtures("users_to_remove")
     def test_delete_new_users(self, browser, baseurl, button_label_view, users_to_remove):
         page_object = AdministrationPage(browser, baseurl)
         page_object.users_and_groups()
@@ -146,8 +140,7 @@ class TestCreateUsersPairWise(Base):
         assert popup.text == "Users sucessfully updated"
 
     def test_step5_logout(self, browser, baseurl):
-        page_object = LoggedInPage(browser, baseurl)
-        page_object.logout()
+        self.logout(browser, baseurl)
 
 
 class TestCreateUserWhichExists(Base):
