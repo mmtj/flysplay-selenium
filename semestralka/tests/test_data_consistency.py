@@ -12,7 +12,7 @@ class TestUserDataConsistency(Base):
 
     @pytest.fixture
     def user_metadata(self):
-        return ("consistency_user", "consistency_passwd", "Basis")
+        return [("consistency_user", "consistency_passwd", "Basis")]
 
     @pytest.mark.usesfixtures("admin_login", "admin_password")
     def test_step1_login_as_admin(self, browser, baseurl, admin_login, admin_password):
