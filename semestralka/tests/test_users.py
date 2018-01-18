@@ -149,16 +149,9 @@ class TestCreateUserWhichExists(Base):
     def button_label(self):
         return "Register New User"
 
-    def test_step1_login_as_admin(self, browser, baseurl):
-        page_object = LoginPage(browser, baseurl)
-        page_object.go_to_url()
-
-        page_object.go_to_login_form()
-        page_object.log_in("admin", "admin123")
-
-        page_object = LoggedInPage(browser, baseurl)
-
-        assert page_object.is_logged()
+    @pytest.mark.usefixtures("admin_login", "admin_password")
+    def test_step1_login_as_admin(self, browser, baseurl, admin_login, admin_password):
+        self.login(browser, baseurl, admin_login, admin_password)
 
     def test_step2_go_to_administration(self, browser, baseurl):
         page_object = LoggedInPage(browser, baseurl)
@@ -191,8 +184,7 @@ class TestCreateUserWhichExists(Base):
         assert popup.text == "That username is already taken. You will need to choose another one."
 
     def test_step4_logout(self, browser, baseurl):
-        page_object = LoggedInPage(browser, baseurl)
-        page_object.logout()
+        self.logout(browser, baseurl)
 
 
 class TestTryAdminPrivilegesAsNonAdmin(Base):
@@ -221,16 +213,9 @@ class TestDeleteUsers(Base):
     def button_label(self):
         return "View All Users"
 
-    def test_step1_login_as_admin(self, browser, baseurl):
-        page_object = LoginPage(browser, baseurl)
-        page_object.go_to_url()
-
-        page_object.go_to_login_form()
-        page_object.log_in("admin", "admin123")
-
-        page_object = LoggedInPage(browser, baseurl)
-
-        assert page_object.is_logged()
+    @pytest.mark.usefixtures("admin_login", "admin_password")
+    def test_step1_login_as_admin(self, browser, baseurl, admin_login, admin_password):
+        self.login(browser, baseurl, admin_login, admin_password)
 
     def test_step2_go_to_administration(self, browser, baseurl):
         page_object = LoggedInPage(browser, baseurl)
@@ -261,3 +246,6 @@ class TestDeleteUsers(Base):
         popup = browser.find_element_by_id("successanderrors")
 
         assert popup.text == "Users sucessfully updated"
+
+    def test_step4_logout(self, browser, baseurl):
+        self.logout(browser, baseurl)
