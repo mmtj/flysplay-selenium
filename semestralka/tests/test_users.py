@@ -72,8 +72,9 @@ class TestCreateUsers(Base):
         page_object.logout()
 
 
+@pytest.mark.usefixtures("pairwise_data")
 class TestCreateUsersPairWise(Base):
-    """Create new users with pairs values"""
+    """Create new users with pairs permutations"""
 
     @pytest.fixture
     def button_label(self):
@@ -82,7 +83,7 @@ class TestCreateUsersPairWise(Base):
     @pytest.fixture
     def button_label_view(self):
         return "View All Users"
-    
+
     def test_step1_login_as_admin(self, browser, baseurl):
         page_object = LoginPage(browser, baseurl)
         page_object.go_to_url()
@@ -104,8 +105,7 @@ class TestCreateUsersPairWise(Base):
 
         assert page_object.get_section_heading().text == "Administrator's Toolbox :: Preferences"
 
-    @pytest.mark.usefixtures("pairwise_data")
-    def test_fixtures(self, browser, baseurl, button_label, pairwise_data):
+    def test_register_new_users(self, browser, baseurl, button_label, pairwise_data):
         username, password, role, timezone, notification = pairwise_data
         page_object = AdministrationPage(browser, baseurl)
         page_object.users_and_groups()
@@ -121,11 +121,8 @@ class TestCreateUsersPairWise(Base):
 
         popup = browser.find_element_by_class_name("success")
         assert popup.text == "New User Account has been created."
-    
-    @pytest.mark.usefixtures("pairwise_data")
-    def test_delete_users(self, browser, baseurl, button_label_view, pairwise_data):
-        username = pairwise_data[0]
 
+    def test_delete_new_users(self, browser, baseurl, button_label_view, users_to_remove):
         page_object = AdministrationPage(browser, baseurl)
         page_object.users_and_groups()
 
@@ -138,8 +135,9 @@ class TestCreateUsersPairWise(Base):
         # find checkbox that is in first td of row
         xpath_tpl = '//*[@id="editallusers"]/table//td[text() = "{}"]/../td/input'
 
-        chkbox1 = browser.find_element_by_xpath(xpath_tpl.format(username))
-        chkbox1.click()
+        for username in users_to_remove:
+            chkbox = browser.find_element_by_xpath(xpath_tpl.format(username))
+            chkbox.click()
 
         browser.find_element_by_name("delete").click()
 

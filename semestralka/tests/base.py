@@ -2,11 +2,12 @@ import pytest
 from selenium import webdriver
 
 from models import LoggedInPage, LoginPage
-from config import project_url, browser_driver
+from config import browser_driver
 
 
+@pytest.mark.usesfixtures("baseurl")
 class Base:
-    """Base class for all tests"""
+    """Base class for all tests with basic fixtures"""
 
     @pytest.fixture(scope="class")
     def browser(self):
@@ -19,10 +20,6 @@ class Base:
 
         yield driver
         driver.quit()
-
-    @pytest.fixture
-    def baseurl(self):
-        return project_url
 
     def logout(self, browser, baseurl):
         page_object = LoggedInPage(browser, baseurl)
